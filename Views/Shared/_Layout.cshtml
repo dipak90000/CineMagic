@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CineMagic</title>
+    <!-- Google Fonts with graceful system fallbacks if offline -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Animated background orbs -->
+    <div class="bg-orbs" aria-hidden="true">
+        <span class="orb orb-1"></span>
+        <span class="orb orb-2"></span>
+        <span class="orb orb-3"></span>
+    </div>
+
+    <!-- Premium sticky glassmorphism navbar -->
+    <header class="navbar" id="navbar">
+        <nav class="nav-inner">
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="CineMagic home">
+                <span class="brand-clap">🎬</span>
+                <span class="brand-text">Cine<em>Magic</em></span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <a asp-controller="Home" asp-action="Index" class="nav-link">Home</a>
+                <a asp-controller="Home" asp-action="Movies" class="nav-link">Movies</a>
+                <a asp-controller="Home" asp-action="Offers" class="nav-link nav-link-offer">Offers <span class="offer-dot"></span></a>
+                <a asp-controller="Booking" asp-action="MyBookings" class="nav-link">My Bookings</a>
+                <a asp-controller="Home" asp-action="Contact" class="nav-link">Contact</a>
+                <a asp-controller="Home" asp-action="Movies" class="btn btn-gold btn-sm magnetic nav-cta">
+                    <span class="btn-shine"></span>🎟️ Book Now
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-fade">
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="brand-clap">🎬</span>
+                <span class="brand-text">Cine<em>Magic</em></span>
+                <p>Your front-row seat to the magic of cinema.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Explore</h4>
+                <a asp-controller="Home" asp-action="Index">Home</a>
+                <a asp-controller="Home" asp-action="Movies">All Movies</a>
+                <a asp-controller="Home" asp-action="Offers">Offers</a>
+                <a asp-controller="Booking" asp-action="MyBookings">My Bookings</a>
+                <a asp-controller="Home" asp-action="Contact">Contact</a>
+            </div>
+            <div class="footer-col">
+                <h4>Experience</h4>
+                <span>IMAX • 4DX • Dolby Atmos</span>
+                <span>Recliner Lounges</span>
+                <span>CineMagic Grand, Mumbai</span>
+            </div>
+        </div>
+        <div class="footer-bottom">© 2026 CineMagic — crafted with ASP.NET Core MVC</div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

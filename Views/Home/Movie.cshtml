@@ -1,0 +1,93 @@
+@model Movie
+@{
+    ViewData["Title"] = Model.Title;
+    var groups = (List<IGrouping<DateOnly, Showtime>>)ViewData["ShowtimeGroups"]!;
+}
+
+<!-- ================= BACKDROP HERO ================= -->
+<section class="detail-hero" style="background:@Model.BackdropGradient">
+    <div class="detail-hero-inner container">
+        <div class="detail-poster tilt reveal visible" data-tilt style="background:@Model.PosterGradient">
+            @if (!string.IsNullOrEmpty(Model.BannerUrl))
+            {
+                <img class="poster-img" src="@Model.BannerUrl" alt="@Model.Title poster" onerror="this.remove()" />
+            }
+            <span class="poster-icon poster-icon-lg">@Model.PosterIcon</span>
+            <span class="poster-title">@Model.Title</span>
+        </div>
+        <div class="detail-info reveal visible">
+            <div class="hero-kicker">@Model.Tagline</div>
+            <h1 class="detail-title">@Model.Title</h1>
+            <div class="detail-meta">
+                <span class="meta-chip gold">⭐ @Model.Rating.ToString("0.0") / 10</span>
+                <span class="meta-chip">@Model.Genre</span>
+                <span class="meta-chip">⏱️ @Model.DurationText</span>
+                <span class="meta-chip">@Model.AgeRating</span>
+                <span class="meta-chip">@Model.ReleaseYear</span>
+            </div>
+            <p class="detail-desc">@Model.Description</p>
+            <p class="detail-cast"><strong>Starring:</strong> @Model.Cast</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= SHOWTIME PICKER ================= -->
+<section class="container">
+    <div class="glass-panel reveal">
+        <h2 class="section-title">Select <em>Showtime</em></h2>
+
+        <!-- Animated date tabs -->
+        <div class="date-tabs" role="tablist">
+            @for (var i = 0; i < groups.Count; i++)
+            {
+                var g = groups[i];
+                <button type="button"
+                        class="date-tab pill-btn @(i == 0 ? "active" : "")"
+                        data-day="@i" role="tab">
+                    <span class="day-label">@g.First().DateLabel</span>
+                    <span class="day-date">@g.Key.ToString("dd MMM")</span>
+                </button>
+            }
+        </div>
+
+        <!-- Showtime lists, one panel per day -->
+        @for (var i = 0; i < groups.Count; i++)
+        {
+            var g = groups[i];
+            <div class="showtime-day @(i == 0 ? "active" : "")" data-day="@i">
+                <div class="showtime-list">
+                    @foreach (var st in g)
+                    {
+                        <a asp-controller="Booking" asp-action="Seats" asp-route-showtimeId="@st.Id"
+                           class="showtime-card pill-btn ripple">
+                            <span class="showtime-time">@st.Time</span>
+                            <span class="showtime-tags">
+                                <span class="tag">@st.Screen</span>
+                                <span class="tag tag-gold">@st.Format</span>
+                            </span>
+                            <span class="showtime-arrow">→</span>
+                        </a>
+                    }
+                </div>
+                <p class="muted small">All timings are in IST. Please arrive 20 minutes early.</p>
+            </div>
+        }
+    </div>
+
+    <a asp-controller="Home" asp-action="Index" class="back-link">← Back to all movies</a>
+</section>
+
+@section Scripts {
+    <script>
+        // Date-tab switcher with a sliding pill animation.
+        document.querySelectorAll('.date-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const day = tab.dataset.day;
+                document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.showtime-day').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelector(`.showtime-day[data-day="${day}"]`).classList.add('active');
+            });
+        });
+    </script>
+}

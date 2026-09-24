@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>CineMagic</RootNamespace>
+    <AssemblyName>CineMagic</AssemblyName>
+    <UserSecretsId>c1nemag1c-d1pa-k000-000000000001</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,100 @@
+@model List<Movie>
+@{
+    ViewData["Title"] = "Offers";
+    var doomsday = (Movie?)ViewData["OfferMovie"];
+}
+
+<!-- ================= OFFER HERO ================= -->
+@if (doomsday is not null)
+{
+    <section class="offer-hero" style="background:@doomsday.BackdropGradient">
+        <div class="offer-hero-inner container reveal visible">
+            <div class="offer-poster tilt" data-tilt style="background:@doomsday.PosterGradient">
+                @if (!string.IsNullOrEmpty(doomsday.BannerUrl))
+                {
+                    <img class="poster-img" src="@doomsday.BannerUrl" alt="@doomsday.Title poster" loading="lazy" onerror="this.remove()" />
+                }
+                <span class="poster-icon poster-icon-lg">@doomsday.PosterIcon</span>
+                <span class="poster-title">@doomsday.Title</span>
+            </div>
+            <div class="offer-hero-copy">
+                <div class="hero-kicker">⚡ Early-bird offer — first week only</div>
+                <h1 class="offer-title">Avengers: <em>Doomsday</em></h1>
+                <p class="offer-sub">The multiverse collapses. Be there on day one — flat <strong>20% off</strong> on all first-week bookings.</p>
+                <div class="promo-code-box" id="promoBox" role="button" tabindex="0" aria-label="Copy promo code">
+                    <span class="promo-label">Use code</span>
+                    <strong class="promo-code">DOOMSDAY20</strong>
+                    <span class="promo-copy">📋 tap to copy</span>
+                </div>
+                <div class="hero-cta">
+                    <a asp-controller="Home" asp-action="Movie" asp-route-id="@doomsday.Id" class="btn btn-gold btn-lg magnetic ripple">
+                        <span class="btn-shine"></span>🎟️ Book Doomsday Now
+                    </a>
+                </div>
+                <p class="muted small">Enter the code at checkout — the 20% discount applies automatically. Valid on Avengers: Doomsday shows only.</p>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- ================= MORE OFFERS ================= -->
+<section class="container offers-page">
+    <div class="section-head reveal">
+        <h2 class="section-title">More <em>Offers</em></h2>
+        <p class="section-sub">Deals worth leaving the couch for.</p>
+    </div>
+
+    <div class="offer-grid">
+        <article class="offer-card glass-panel tilt reveal" data-tilt>
+            <div class="offer-card-icon">🌤️</div>
+            <h3>Weekday Matinee Magic</h3>
+            <p>Catch any show before 2 PM, Monday to Friday, and enjoy <strong>15% off</strong> automatically at checkout.</p>
+            <span class="tag tag-gold">Auto-applied</span>
+        </article>
+
+        <article class="offer-card glass-panel tilt reveal" data-tilt>
+            <div class="offer-card-icon">👨‍👩‍👧‍👦</div>
+            <h3>Family Pack</h3>
+            <p>Book 4+ seats together and get a <strong>free large popcorn</strong> on every family outing. Just show your e-ticket at the counter.</p>
+            <span class="tag tag-gold">4+ seats</span>
+        </article>
+
+        <article class="offer-card glass-panel tilt reveal" data-tilt>
+            <div class="offer-card-icon">🎓</div>
+            <h3>Student Sundays</h3>
+            <p>Flash a valid student ID at the box office on Sundays for <strong>₹50 off</strong> per ticket.</p>
+            <span class="tag tag-gold">Box office only</span>
+        </article>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Tap-to-copy the promo code.
+        (function () {
+            const box = document.getElementById("promoBox");
+            if (!box) return;
+            const code = box.querySelector(".promo-code").textContent.trim();
+            const copyHint = box.querySelector(".promo-copy");
+            const copy = () => {
+                const done = () => {
+                    copyHint.textContent = "✅ copied!";
+                    setTimeout(() => (copyHint.textContent = "📋 tap to copy"), 1800);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(done).catch(done);
+                } else {
+                    const ta = document.createElement("textarea");
+                    ta.value = code;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { document.execCommand("copy"); } catch (e) { /* ignore */ }
+                    ta.remove();
+                    done();
+                }
+            };
+            box.addEventListener("click", copy);
+            box.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copy(); } });
+        })();
+    </script>
+}

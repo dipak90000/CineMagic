@@ -1,0 +1,107 @@
+@model SeatMapViewModel
+@{
+    ViewData["Title"] = "Select Seats";
+}
+
+<section class="container seats-page">
+    <div class="booking-steps reveal visible">
+        <span class="step done">1 • Showtime</span>
+        <span class="step current">2 • Seats</span>
+        <span class="step">3 • Payment</span>
+    </div>
+
+    <div class="show-summary glass-panel reveal visible">
+        <div class="mini-poster" style="background:@Model.Movie.PosterGradient">
+            @if (!string.IsNullOrEmpty(Model.Movie.BannerUrl))
+            {
+                <img class="poster-img" src="@Model.Movie.BannerUrl" alt="@Model.Movie.Title poster" loading="lazy" onerror="this.remove()" />
+            }
+            <span>@Model.Movie.PosterIcon</span>
+        </div>
+        <div>
+            <h1 class="show-title">@Model.Movie.Title</h1>
+            <p class="show-meta">
+                <span class="tag tag-gold">@Model.Showtime.DateTimeLabel</span>
+                <span class="tag">@Model.Showtime.Screen</span>
+                <span class="tag">@Model.Showtime.Format</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="seats-layout">
+        <!-- ============ SEAT MAP ============ -->
+        <div class="glass-panel seatmap-panel reveal visible">
+            <div class="screen-wrap">
+                <div class="screen-arc"></div>
+                <div class="screen-label">SCREEN</div>
+            </div>
+
+            <div class="seat-map" id="seatMap">
+                @foreach (var row in Model.Rows)
+                {
+                    <div class="seat-row">
+                        <span class="row-label">@row.RowLabel</span>
+                        <div class="seats">
+                            @foreach (var seat in row.Seats)
+                            {
+                                <button type="button"
+                                        class="seat @(seat.IsSold ? "sold" : "")"
+                                        data-seat="@seat.Label"
+                                        data-price="@seat.Price"
+                                        data-category="@row.Category"
+                                        disabled="@(seat.IsSold ? "disabled" : null)"
+                                        aria-label="Seat @seat.Label (@row.Category)">
+                                    @seat.Label.Substring(1)
+                                </button>
+                            }
+                        </div>
+                        <span class="row-label">@row.RowLabel</span>
+                    </div>
+                }
+            </div>
+
+            <div class="legend">
+                <span class="legend-item"><span class="legend-dot available"></span>Available</span>
+                <span class="legend-item"><span class="legend-dot selected"></span>Selected</span>
+                <span class="legend-item"><span class="legend-dot sold"></span>Sold</span>
+            </div>
+
+            <div class="price-tiers">
+                <span><strong>Classic</strong> ₹160 <em>(rows A–C)</em></span>
+                <span><strong>Prime</strong> ₹220 <em>(rows D–F)</em></span>
+                <span><strong>Recliner</strong> ₹320 <em>(rows G–H)</em></span>
+            </div>
+        </div>
+
+        <!-- ============ SUMMARY ============ -->
+        <aside class="glass-panel summary-panel reveal visible">
+            <h3>Your Selection</h3>
+            <div class="summary-seats" id="summarySeats">
+                <p class="muted">No seats selected yet.<br />Tap seats on the map 👆</p>
+            </div>
+            <div class="summary-row">
+                <span>Seats</span><strong id="seatCount">0</strong>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span><strong id="totalPrice">₹0</strong>
+            </div>
+            <p class="muted small">Max @Model.MaxSeats seats per booking.</p>
+
+            <form asp-controller="Booking" asp-action="Checkout" method="get" id="seatsForm">
+                <input type="hidden" name="showtimeId" value="@Model.Showtime.Id" />
+                <input type="hidden" name="seats" id="seatsInput" value="" />
+                <button type="submit" class="btn btn-gold btn-lg btn-block magnetic ripple" id="continueBtn" disabled>
+                    <span class="btn-shine"></span>Continue →
+                </button>
+            </form>
+            <a asp-controller="Home" asp-action="Movie" asp-route-id="@Model.Movie.Id" class="back-link">← Change showtime</a>
+        </aside>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Seat-map state (kept tiny on purpose — the heavy lifting is in site.js helpers).
+        window.SEAT_CONFIG = { maxSeats: @Model.MaxSeats };
+    </script>
+}

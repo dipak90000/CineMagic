@@ -1,0 +1,100 @@
+@model MyBookingsViewModel
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<section class="container myb-page">
+    <div class="reveal visible">
+        <h1 class="section-title">My <em>Bookings</em> 🎟️</h1>
+        <p class="muted">Enter the mobile number you used at checkout to see your tickets, download invoices, or cancel.</p>
+    </div>
+
+    @if (TempData["MyBookingsSuccess"] is string okMsg)
+    {
+        <div class="notice notice-green dismissible reveal visible" role="status">
+            <span>@okMsg</span>
+            <button type="button" class="notice-close" aria-label="Dismiss notice" onclick="this.parentElement.remove()">✕</button>
+        </div>
+    }
+    @if (TempData["MyBookingsError"] is string errMsg)
+    {
+        <div class="notice notice-red dismissible reveal visible" role="alert">
+            <span>@errMsg</span>
+            <button type="button" class="notice-close" aria-label="Dismiss notice" onclick="this.parentElement.remove()">✕</button>
+        </div>
+    }
+
+    <!-- ============ LOOKUP FORM ============ -->
+    <div class="glass-panel reveal visible myb-lookup">
+        <form asp-controller="Booking" asp-action="MyBookingsLookup" method="post" class="myb-form">
+            @Html.AntiForgeryToken()
+            <div class="field floating myb-field">
+                <input name="phone" id="phone" placeholder=" " inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}"
+                       value="@Model.Phone" required />
+                <label for="phone">Mobile number</label>
+                <span class="field-bar"></span>
+            </div>
+            <button type="submit" class="btn btn-gold magnetic ripple"><span class="btn-shine"></span>🔍 Find my bookings</button>
+        </form>
+    </div>
+
+    <!-- ============ RESULTS ============ -->
+    @if (Model.Searched)
+    {
+        @if (Model.Bookings.Count == 0)
+        {
+            <div class="glass-panel reveal visible empty-state">
+                <div class="empty-icon">🎬</div>
+                <h3>No bookings found</h3>
+                <p class="muted">Nothing booked with <strong>@Model.Phone</strong> yet. The show must go on!</p>
+                <a asp-controller="Home" asp-action="Movies" class="btn btn-gold ripple"><span class="btn-shine"></span>Browse Movies</a>
+            </div>
+        }
+        else
+        {
+            <p class="muted">@Model.Bookings.Count booking@(Model.Bookings.Count == 1 ? "" : "s") found for <strong>@Model.Phone</strong></p>
+            <div class="myb-grid">
+                @foreach (var row in Model.Bookings)
+                {
+                    <article class="glass-panel myb-card reveal visible">
+                        <div class="order-movie">
+                            <div class="mini-poster" style="background:@row.Movie.PosterGradient">
+                                @if (!string.IsNullOrEmpty(row.Movie.BannerUrl))
+                                {
+                                    <img class="poster-img" src="@row.Movie.BannerUrl" alt="@row.Movie.Title poster" loading="lazy" onerror="this.remove()" />
+                                }
+                                <span>@row.Movie.PosterIcon</span>
+                            </div>
+                            <div>
+                                <strong>@row.Movie.Title</strong>
+                                <p class="muted small">@row.Showtime.Date.ToString("ddd, dd MMM yyyy") • @row.Showtime.Time<br />@row.Showtime.Screen • @row.Showtime.Format</p>
+                            </div>
+                        </div>
+                        <div class="seat-chips">
+                            @foreach (var s in row.Booking.Seats)
+                            {
+                                <span class="seat-chip">@s</span>
+                            }
+                        </div>
+                        <div class="summary-row">
+                            <span>Booking ref</span><strong class="ref-code">@row.Booking.Reference</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Amount paid</span><strong class="gold">₹@row.Booking.TotalAmount.ToString("0")</strong>
+                        </div>
+                        <div class="myb-actions">
+                            <a asp-controller="Booking" asp-action="Invoice" asp-route-reference="@row.Booking.Reference" class="btn btn-ghost ripple">🧾 Invoice</a>
+                            <form asp-controller="Booking" asp-action="Cancel" method="post" class="myb-cancel-form"
+                                  onsubmit="return confirm('Cancel booking @row.Booking.Reference? Your seats will be freed and this cannot be undone.');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="reference" value="@row.Booking.Reference" />
+                                <input type="hidden" name="phone" value="@Model.Phone" />
+                                <button type="submit" class="btn btn-danger ripple">✕ Cancel booking</button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    }
+</section>

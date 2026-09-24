@@ -1,0 +1,106 @@
+@model List<Movie>
+@{
+    ViewData["Title"] = "All Movies";
+    var categories = (List<string>)ViewData["Categories"]!;
+}
+
+<section class="container movies-page">
+    <div class="section-head reveal visible">
+        <h1 class="section-title">All <em>Movies</em></h1>
+        <p class="section-sub">Bollywood blockbusters, Hollywood epics and South cinema spectacles — pick your story.</p>
+    </div>
+
+    <!-- Category filter pills + search -->
+    <div class="movies-toolbar glass-panel reveal visible">
+        <div class="filter-pills" role="tablist" aria-label="Filter by category">
+            <button type="button" class="pill-btn filter-pill active" data-filter="all">All</button>
+            @foreach (var cat in categories)
+            {
+                <button type="button" class="pill-btn filter-pill" data-filter="@cat">@cat</button>
+            }
+        </div>
+        <div class="search-box">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="movieSearch" placeholder="Search movies…" aria-label="Search movies by title" autocomplete="off" />
+        </div>
+    </div>
+
+    <p class="muted small movies-count" id="moviesCount"></p>
+
+    <div class="movie-grid" id="moviesGrid">
+        @foreach (var movie in Model)
+        {
+            <article class="movie-card tilt reveal visible" data-tilt
+                     data-category="@movie.Category" data-title="@movie.Title.ToLowerInvariant()">
+                <a asp-controller="Home" asp-action="Movie" asp-route-id="@movie.Id" class="card-link" aria-label="Book @movie.Title">
+                    <div class="poster" style="background:@movie.PosterGradient">
+                        @if (!string.IsNullOrEmpty(movie.BannerUrl))
+                        {
+                            <img class="poster-img" src="@movie.BannerUrl" alt="@movie.Title poster" loading="lazy" onerror="this.remove()" />
+                        }
+                        <span class="poster-icon">@movie.PosterIcon</span>
+                        <span class="poster-title">@movie.Title</span>
+                        <span class="rating-badge">⭐ @movie.Rating.ToString("0.0")</span>
+                        <span class="age-badge">@movie.AgeRating</span>
+                        @if (movie.IsOffer)
+                        {
+                            <span class="offer-ribbon">🔥 20% OFF</span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">@movie.Title</h3>
+                        <p class="card-meta">@movie.Category • @movie.Language</p>
+                        <p class="card-meta">@movie.Genre • @movie.DurationText</p>
+                        <span class="btn btn-gold btn-block ripple"><span class="btn-shine"></span>Book Tickets</span>
+                    </div>
+                </a>
+            </article>
+        }
+    </div>
+
+    <p class="muted center hidden" id="noResults">😢 No movies match your search. Try another title or category.</p>
+</section>
+
+@section Scripts {
+    <script>
+        // Animated category filtering + live title search.
+        (function () {
+            const grid = document.getElementById("moviesGrid");
+            const cards = Array.from(grid.querySelectorAll(".movie-card"));
+            const pills = document.querySelectorAll(".filter-pill");
+            const search = document.getElementById("movieSearch");
+            const count = document.getElementById("moviesCount");
+            const noResults = document.getElementById("noResults");
+            let activeFilter = "all";
+
+            function apply() {
+                const q = search.value.trim().toLowerCase();
+                let visible = 0;
+                cards.forEach(card => {
+                    const okCat = activeFilter === "all" || card.dataset.category === activeFilter;
+                    const okTitle = !q || card.dataset.title.includes(q);
+                    const show = okCat && okTitle;
+                    card.classList.toggle("hidden", !show);
+                    if (show) {
+                        visible++;
+                        card.classList.remove("pop-in");
+                        void card.offsetWidth; // restart animation
+                        card.classList.add("pop-in");
+                    }
+                });
+                count.textContent = visible + (visible === 1 ? " movie" : " movies") + " found";
+                noResults.classList.toggle("hidden", visible !== 0);
+            }
+
+            pills.forEach(pill => pill.addEventListener("click", () => {
+                pills.forEach(p => p.classList.remove("active"));
+                pill.classList.add("active");
+                activeFilter = pill.dataset.filter;
+                apply();
+            }));
+
+            search.addEventListener("input", apply);
+            apply();
+        })();
+    </script>
+}

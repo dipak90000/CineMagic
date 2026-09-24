@@ -1,0 +1,66 @@
+@model ConfirmationViewModel
+@{
+    ViewData["Title"] = "Booking Confirmed";
+}
+
+<canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+<section class="container confirm-page">
+    @if (TempData["PromoNotice"] is string promoNotice)
+    {
+        <div class="notice notice-amber dismissible reveal visible" role="status">
+            <span>🏷️ @promoNotice</span>
+            <button type="button" class="notice-close" aria-label="Dismiss notice" onclick="this.parentElement.remove()">✕</button>
+        </div>
+    }
+
+    <div class="confirm-hero reveal visible">
+        <div class="confirm-check">✓</div>
+        <h1>You're <em>booked!</em></h1>
+        <p class="muted">Show this ticket at the entrance. Enjoy the show, @Model.Booking.CustomerName! 🍿</p>
+    </div>
+
+    <!-- ============ TICKET ============ -->
+    <div class="ticket reveal visible" data-tilt>
+        <div class="ticket-stub" style="background:@Model.Movie.PosterGradient">
+            @if (!string.IsNullOrEmpty(Model.Movie.BannerUrl))
+            {
+                <img class="poster-img" src="@Model.Movie.BannerUrl" alt="@Model.Movie.Title poster" loading="lazy" onerror="this.remove()" />
+            }
+            <span class="ticket-icon">@Model.Movie.PosterIcon</span>
+            <span class="ticket-brand">CineMagic</span>
+        </div>
+        <div class="ticket-main">
+            <div class="ticket-row">
+                <div>
+                    <span class="ticket-label">Movie</span>
+                    <strong class="ticket-movie">@Model.Movie.Title</strong>
+                </div>
+                <div class="ticket-ref">
+                    <span class="ticket-label">Booking Ref</span>
+                    <strong class="ref-code">@Model.Booking.Reference</strong>
+                </div>
+            </div>
+            <div class="ticket-grid">
+                <div><span class="ticket-label">Date</span><strong>@Model.Showtime.Date.ToString("ddd, dd MMM yyyy")</strong></div>
+                <div><span class="ticket-label">Time</span><strong>@Model.Showtime.Time</strong></div>
+                <div><span class="ticket-label">Screen</span><strong>@Model.Showtime.Screen</strong></div>
+                <div><span class="ticket-label">Format</span><strong>@Model.Showtime.Format</strong></div>
+                <div><span class="ticket-label">Seats</span><strong>@string.Join(", ", Model.Booking.Seats)</strong></div>
+                <div><span class="ticket-label">Amount paid</span><strong class="gold">₹@Model.Booking.TotalAmount.ToString("0")</strong></div>
+            </div>
+            <div class="ticket-barcode" aria-hidden="true">
+                @for (var i = 0; i < 40; i++)
+                {
+                    <span style="width:@(2 + (i * 7) % 5)px"></span>
+                }
+            </div>
+            <p class="muted small center">Booked on @Model.Booking.BookedAt.ToString("dd MMM yyyy, hh:mm tt") • Please arrive 20 minutes early.</p>
+        </div>
+    </div>
+
+    <div class="confirm-actions reveal visible">
+        <a asp-controller="Booking" asp-action="Invoice" asp-route-reference="@Model.Booking.Reference" class="btn btn-gold btn-lg magnetic ripple"><span class="btn-shine"></span>🧾 Generate Invoice</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-ghost btn-lg ripple">🎬 Book Another</a>
+    </div>
+</section>

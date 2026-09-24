@@ -1,0 +1,84 @@
+@model List<Movie>
+@{
+    ViewData["Title"] = "Now Showing";
+}
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+    <div class="hero-content reveal visible">
+        <div class="hero-kicker">✨ The ultimate cinema experience</div>
+        <h1 class="hero-title">
+            <span class="hero-line">Lights.</span>
+            <span class="hero-line hero-line-gold">Camera.</span>
+            <span class="hero-line">CineMagic.</span>
+        </h1>
+        <p class="hero-sub">Book tickets in seconds — pick your movie, grab the perfect seats, and walk straight into the magic.</p>
+        <div class="hero-cta">
+            <a asp-controller="Home" asp-action="Movies" class="btn btn-gold btn-lg magnetic ripple"><span class="btn-shine"></span>🎟️ Browse Movies</a>
+            <a asp-controller="Home" asp-action="Offers" class="btn btn-ghost btn-lg ripple">🔥 View Offers</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat"><strong>@Model.Count</strong><span>movies now showing</span></div>
+            <div class="stat"><strong>3</strong><span>booking days</span></div>
+            <div class="stat"><strong>IMAX</strong><span>&amp; 4DX screens</span></div>
+        </div>
+    </div>
+    <div class="hero-glow" aria-hidden="true"></div>
+</section>
+
+<!-- ================= NOW SHOWING ================= -->
+<section class="container" id="movies">
+    <div class="section-head reveal">
+        <h2 class="section-title">Now <em>Showing</em></h2>
+        <p class="section-sub">Real posters with pure-CSS art as a fallback — hover a card for the 3D tilt.</p>
+    </div>
+
+    <div class="movie-grid">
+        @foreach (var movie in Model.Take(8))
+        {
+            <article class="movie-card tilt reveal" data-tilt>
+                <a asp-controller="Home" asp-action="Movie" asp-route-id="@movie.Id" class="card-link" aria-label="Book @movie.Title">
+                    <div class="poster" style="background:@movie.PosterGradient">
+                        @if (!string.IsNullOrEmpty(movie.BannerUrl))
+                        {
+                            <img class="poster-img" src="@movie.BannerUrl" alt="@movie.Title poster" loading="lazy" onerror="this.remove()" />
+                        }
+                        <span class="poster-icon">@movie.PosterIcon</span>
+                        <span class="poster-title">@movie.Title</span>
+                        <span class="rating-badge">⭐ @movie.Rating.ToString("0.0")</span>
+                        <span class="age-badge">@movie.AgeRating</span>
+                        @if (movie.IsOffer)
+                        {
+                            <span class="offer-ribbon">🔥 20% OFF</span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">@movie.Title</h3>
+                        <p class="card-meta">@movie.Category • @movie.Language</p>
+                        <p class="card-meta">@movie.Genre • @movie.DurationText</p>
+                        <span class="btn btn-gold btn-block ripple"><span class="btn-shine"></span>Book Tickets</span>
+                    </div>
+                </a>
+            </article>
+        }
+    </div>
+
+    <div class="center reveal" style="margin-top:2.5rem">
+        <a asp-controller="Home" asp-action="Movies" class="btn btn-ghost btn-lg ripple">🎬 View all @Model.Count movies →</a>
+    </div>
+</section>
+
+<!-- ================= OFFER STRIP ================= -->
+@{
+    var offerMovie = Model.FirstOrDefault(m => m.IsOffer);
+}
+@if (offerMovie is not null)
+{
+    <section class="container">
+        <a asp-controller="Home" asp-action="Offers" class="offer-strip reveal" aria-label="View Avengers Doomsday offer">
+            <span class="offer-strip-badge">⚡ EARLY BIRD</span>
+            <span class="offer-strip-text"><strong>Avengers: Doomsday</strong> — flat 20% off first-week bookings with code <strong class="gold">DOOMSDAY20</strong></span>
+            <span class="offer-strip-arrow">→</span>
+        </a>
+    </section>
+}

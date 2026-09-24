@@ -1,0 +1,76 @@
+@model InvoiceViewModel
+@{
+    ViewData["Title"] = "Invoice " + Model.InvoiceNumber;
+}
+
+<section class="container invoice-page">
+    <div class="invoice-actions no-print reveal visible">
+        <a asp-controller="Booking" asp-action="Confirmation" asp-route-reference="@Model.Booking.Reference" class="btn btn-ghost ripple">← Back to ticket</a>
+        <button type="button" class="btn btn-gold magnetic ripple" onclick="window.print()"><span class="btn-shine"></span>🖨️ Print / Save as PDF</button>
+    </div>
+
+    <!-- ============ INVOICE DOCUMENT ============ -->
+    <div class="invoice-doc reveal visible">
+        <div class="invoice-header">
+            <div class="invoice-brand">
+                <span class="brand-clap">🎬</span>
+                <span class="brand-text">Cine<em>Magic</em></span>
+                <p class="muted small">CineMagic Grand, 4th Floor, Galaxy Mall,<br />Andheri West, Mumbai 400053<br />GSTIN: 27ABCDE1234F1Z5</p>
+            </div>
+            <div class="invoice-meta">
+                <h1>INVOICE</h1>
+                <p><span class="ticket-label">Invoice no.</span><br /><strong>@Model.InvoiceNumber</strong></p>
+                <p><span class="ticket-label">Date</span><br /><strong>@Model.Booking.BookedAt.ToString("dd MMM yyyy, hh:mm tt")</strong></p>
+                <p><span class="ticket-label">Booking ref</span><br /><strong class="ref-code">@Model.Booking.Reference</strong></p>
+            </div>
+        </div>
+
+        <div class="invoice-parties">
+            <div>
+                <span class="ticket-label">Billed to</span>
+                <p><strong>@Model.Booking.CustomerName</strong><br />
+                <span class="muted">@Model.Booking.Email<br />+91 @Model.Booking.Phone</span></p>
+            </div>
+            <div>
+                <span class="ticket-label">Show details</span>
+                <p><strong>@Model.Movie.Title</strong> (@Model.Movie.AgeRating)<br />
+                <span class="muted">@Model.Showtime.Date.ToString("ddd, dd MMM yyyy") • @Model.Showtime.Time<br />
+                @Model.Showtime.Screen • @Model.Showtime.Format</span></p>
+            </div>
+        </div>
+
+        <table class="invoice-table">
+            <thead>
+                <tr><th>#</th><th>Description</th><th>Category</th><th class="num">Amount (₹)</th></tr>
+            </thead>
+            <tbody>
+                @{ var i = 1; }
+                @foreach (var s in Model.SeatLines)
+                {
+                    <tr>
+                        <td>@(i++)</td>
+                        <td>Movie ticket — Seat @s.Label<br /><span class="muted small">@Model.Movie.Title</span></td>
+                        <td>@s.Category</td>
+                        <td class="num">@s.Price.ToString("0.00")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="invoice-totals">
+            <div class="summary-row"><span>Subtotal</span><span>₹@Model.Subtotal.ToString("0.00")</span></div>
+            @if (Model.Discount > 0)
+            {
+                <div class="summary-row discount-row"><span>Discount (@Model.Booking.PromoCode — 20%)</span><span>− ₹@Model.Discount.ToString("0.00")</span></div>
+            }
+            <div class="summary-row"><span>GST (18% incl.)</span><span>₹@Model.GstIncluded.ToString("0.00")</span></div>
+            <div class="summary-row total"><span>Grand total</span><strong>₹@Model.GrandTotal.ToString("0.00")</strong></div>
+        </div>
+
+        <p class="muted small">Prices are inclusive of 18% GST. Convenience fee: FREE. This is a computer-generated invoice and needs no signature.</p>
+
+        <div class="invoice-thanks">
+            <p>🎬 <strong>Thank you for choosing CineMagic!</strong><br /><span class="muted">Please arrive 20 minutes early. Enjoy the show! 🍿</span></p>
+        </div>
+    </div>
+</section>

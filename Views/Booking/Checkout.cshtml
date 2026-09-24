@@ -1,0 +1,106 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<section class="container checkout-page">
+    <div class="booking-steps reveal visible">
+        <span class="step done">1 • Showtime</span>
+        <span class="step done">2 • Seats</span>
+        <span class="step current">3 • Payment</span>
+    </div>
+
+    <div class="checkout-layout">
+        <!-- ============ FORM ============ -->
+        <div class="glass-panel reveal visible">
+            <h2 class="section-title">Your <em>Details</em></h2>
+            <form asp-controller="Booking" asp-action="Checkout" method="post" id="checkoutForm" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ShowtimeId" />
+                <input type="hidden" asp-for="SeatsCsv" />
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="field floating">
+                    <input asp-for="Name" placeholder=" " autocomplete="name" required />
+                    <label asp-for="Name">Full name</label>
+                    <span class="field-bar"></span>
+                    <span asp-validation-for="Name" class="field-error"></span>
+                </div>
+
+                <div class="field floating">
+                    <input asp-for="Email" placeholder=" " type="email" autocomplete="email" required />
+                    <label asp-for="Email">Email address</label>
+                    <span class="field-bar"></span>
+                    <span class="field-hint">Your e-ticket will be sent here.</span>
+                    <span asp-validation-for="Email" class="field-error"></span>
+                </div>
+
+                <div class="field floating">
+                    <input asp-for="Phone" placeholder=" " inputmode="numeric" autocomplete="tel" maxlength="10" pattern="[6-9][0-9]{9}" required />
+                    <label asp-for="Phone">Mobile number</label>
+                    <span class="field-bar"></span>
+                    <span asp-validation-for="Phone" class="field-error"></span>
+                </div>
+
+                <div class="field floating promo-field">
+                    <input asp-for="PromoCode" placeholder=" " autocomplete="off" style="text-transform:uppercase" />
+                    <label asp-for="PromoCode">Promo code <em class="muted">(optional)</em></label>
+                    <span class="field-bar"></span>
+                    <span class="field-hint">100% optional — leave it blank or type a wrong code and checkout still works (wrong codes are simply ignored). Tip: <strong>DOOMSDAY20</strong> gets 20% off Avengers: Doomsday.</span>
+                    <span asp-validation-for="PromoCode" class="field-error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-gold btn-lg btn-block magnetic ripple" id="payBtn">
+                    <span class="btn-shine"></span>
+                    <span class="pay-label">💳 Pay ₹@Model.GrandTotal.ToString("0") &amp; Book</span>
+                    <span class="pay-spinner" aria-hidden="true"></span>
+                </button>
+                <p class="muted small center">🔒 Secure simulated payment — no real money moves.</p>
+            </form>
+        </div>
+
+        <!-- ============ ORDER SUMMARY ============ -->
+        <aside class="glass-panel summary-panel reveal visible">
+            <h3>Order Summary</h3>
+            <div class="order-movie">
+                <div class="mini-poster" style="background:@Model.Movie.PosterGradient">
+                    @if (!string.IsNullOrEmpty(Model.Movie.BannerUrl))
+                    {
+                        <img class="poster-img" src="@Model.Movie.BannerUrl" alt="@Model.Movie.Title poster" loading="lazy" onerror="this.remove()" />
+                    }
+                    <span>@Model.Movie.PosterIcon</span>
+                </div>
+                <div>
+                    <strong>@Model.Movie.Title</strong>
+                    <p class="muted small">@Model.Showtime.DateTimeLabel<br />@Model.Showtime.Screen • @Model.Showtime.Format</p>
+                </div>
+            </div>
+            <div class="seat-chips">
+                @foreach (var s in Model.SeatLines)
+                {
+                    <span class="seat-chip">@s.Label</span>
+                }
+            </div>
+            @foreach (var s in Model.SeatLines)
+            {
+                <div class="summary-row">
+                    <span>Seat @s.Label <em>(@s.Category)</em></span>
+                    <span>₹@s.Price.ToString("0")</span>
+                </div>
+            }
+            <div class="summary-row">
+                <span>Convenience fee</span><span class="free">FREE</span>
+            </div>
+            @if (Model.DiscountAmount > 0)
+            {
+                <div class="summary-row discount-row">
+                    <span>Promo @Model.PromoCode <em>(20% off)</em></span>
+                    <span>− ₹@Model.DiscountAmount.ToString("0")</span>
+                </div>
+            }
+            <div class="summary-row total">
+                <span>Total payable</span><strong>₹@Model.GrandTotal.ToString("0")</strong>
+            </div>
+        </aside>
+    </div>
+</section>
